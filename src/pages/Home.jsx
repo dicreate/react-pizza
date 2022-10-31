@@ -1,21 +1,26 @@
 import React from 'react';
+import { useSelector, useDispatch } from 'react-redux'
 
 import Categories from "../components/Categories";
 import Sort from "../components/Sort";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import PizzaBlock from "../components/PizzaBlock";
 import Pagination from "../components/Pagination";
-import {SearchContext} from "../App";
+import { SearchContext } from "../App";
+import { setCategoryId } from "../redux/slices/filterSlice";
 
 const Home = () => {
+    const dispatch = useDispatch()
+    const categoryId = useSelector((state) => state.filter.categoryId)
+    const sortType = useSelector((state) => state.filter.sort.sortProperty)
+
+    const onChangeCategory = (id) => {
+        dispatch(setCategoryId(id))
+    }
+
     const {searchValue} = React.useContext(SearchContext)
     const [items, setItems] = React.useState([]);
     const [isLoading, setIsLoading] = React.useState(true)
-    const [categoryId, setCategoryId] = React.useState(0)
-    const [sortType, setSortType] = React.useState({
-        name:'популярности',
-        sortProperty: 'rating'
-    });
     const [currentPage, setCurrentPage] = React.useState(1);
 
 
@@ -23,7 +28,7 @@ const Home = () => {
         setIsLoading(true);
         fetch(`https://62ff3d0a9350a1e548da51eb.mockapi.io/items?page=${currentPage}&limit=4&${
                 categoryId > 0 ? `category=${categoryId}` : ''
-            }&sortBy=${sortType.sortProperty}&order=desc`
+            }&sortBy=${sortType}&order=desc`
         )
             .then((res) => {
             return res.json();
@@ -42,8 +47,8 @@ const Home = () => {
     return (
         <div className={'container'}>
             <div className="content__top">
-                <Categories value={categoryId} onChangeCategory={(id) => setCategoryId(id)} />
-                <Sort value = {sortType} onChangeSort={(i) => setSortType(i)}/>
+                <Categories value={categoryId} onChangeCategory={onChangeCategory} />
+                <Sort />
             </div>
             <h2 className="content__title">Все пиццы</h2>
             <div className="content__items">
